@@ -1,0 +1,13 @@
+{
+  "name": "DFMiniMp3_Edited",
+  "keywords": "DFPlayer, MP3, Arduino",
+  "description": "Library for the DFPlayer Mini Mp3 module.",
+  "homepage": "https://github.com/SerhiiLe/DFMiniMp3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SerhiiLe/DFMiniMp3"
+  },
+  "version": "1.2.3",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
