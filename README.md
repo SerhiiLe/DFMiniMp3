@@ -1,8 +1,8 @@
-# DFMiniMp3
+# DFMiniMp3E
 
 Arduino library for the DFPlayer Mini Mp3 module.
 
-This is a copy of the project [Makuna/DFMiniMp3](https://github.com/Makuna/DFMiniMp3/wiki) with minor changes for better adaptation to my project. The original author is Michael Miller.
+This is a copy of the project [Makuna/DFMiniMp3](https://github.com/Makuna/DFMiniMp3/wiki) with minor changes for better adaptation to my project. The original author is Michael C. Miller.
 
 ## API Reference
 
@@ -91,6 +91,8 @@ mp3Serial.begin(9600, SERIAL_8N1, rxPin, txPin, false);
 
 for EspSoftwareSerial
 
+in `Setup()` function of the sketches.
+
 _9600_ - the baud rate the module communicates at by defaults.  It is rare you will need to provide this.  
 _rxPin_ - the receive pin for the serial.  
 _txPin_ - the transmit pin for the serial.  
@@ -127,7 +129,6 @@ _track_ - the global track number.  A global track number is the number of the f
 This will play the track from within the mp3 folder.  
 An example filename would be sd:/mp3/0013_ThisIsMyFavoriteSong.mp3, and calling `playMp3FolderTrack(13)` would play it.  
 _track_ - the track number as listed in the filename.  The filename must start with a four digit, zero padded number and any characters that follow will be ignored.  
-
 
 ### void playFolderTrack(uint8_t folder, uint8_t track)  
 

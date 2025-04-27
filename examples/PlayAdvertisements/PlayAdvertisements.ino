@@ -7,7 +7,7 @@
 // sd:/01/001.mp3 - the song to play, the longer the better
 // sd:/advert/0001.mp3 - the advertisement to interrupt the song, keep it short
 
-#include <DFMiniMp3.h>
+#include <DFMiniMp3E.h>
 
 // implement a static notification class,
 // its member methods will get called 
@@ -77,17 +77,23 @@ public:
 
 // define a handy type using serial and our notify class
 //
-typedef DFMiniMp3<HardwareSerial, Mp3Notify> DfMp3; 
+typedef DFMiniMp3<Mp3Notify> DfMp3; 
 
 // instance a DfMp3 object, 
 //
-DfMp3 dfmp3(Serial1);
+DfMp3 dfmp3;
 
-// Some arduino boards only have one hardware serial port, so a software serial port is needed instead.
-// comment out the above definitions and use these
-//SoftwareSerial secondarySerial(10, 11); // RX, TX
-//typedef DFMiniMp3<SoftwareSerial, Mp3Notify> DfMp3;
-// DfMp3 dfmp3(secondarySerial);
+
+// serial definition 
+#define MP3_RX_PIN 13
+#define MP3_TX_PIN 15
+
+#if (defined(ARDUINO_AVR_UNO) || defined(ESP8266))   // Using a soft serial port
+  #include <SoftwareSerial.h>
+  SoftwareSerial mp3Serial(MP3_RX_PIN, MP3_TX_PIN);
+#else
+  #define mp3Serial Serial1
+#endif
 
 
 uint32_t lastAdvert; // track time for last advertisement
@@ -98,15 +104,25 @@ void setup()
 
   Serial.println("initializing...");
   
-  dfmp3.begin();
-  // for boards that support hardware arbitrary pins
-  // dfmp3.begin(10, 11); // RX, TX
+// serial port initialization
+#if (defined ESP32)
+  mp3Serial.begin(9600, SERIAL_8N1, MP3_RX_PIN, MP3_TX_PIN);
+#else
+  mp3Serial.begin(9600);
+#endif
+
+  if (!dfmp3.begin(mp3Serial, /*doReset = */true, /*timeout = */2000)) {  //Use serial to communicate with mp3.
+    Serial.println(F("Unable to begin:"));
+    Serial.println(F("1.Please recheck the connection!"));
+    Serial.println(F("2.Please insert the SD card!"));
+    while(true);
+  }
 
   // during development, it's a good practice to put the module
   // into a known state by calling reset().  
   // You may hear popping when starting and you can remove this 
   // call to reset() once your project is finalized
-  dfmp3.reset();
+//   dfmp3.reset();
 
   uint16_t version = dfmp3.getSoftwareVersion();
   Serial.print("version ");

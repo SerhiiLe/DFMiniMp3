@@ -2,37 +2,53 @@
 //
 // it expects the sd card to contain some mp3 files
 
-#include <DFMiniMp3.h>
+// serial dfPlayer definition 
+#define MP3_RX_PIN 13
+#define MP3_TX_PIN 15
+
+#if (defined(ARDUINO_AVR_UNO) || defined(ESP8266))   // Using a soft serial port
+  #include <SoftwareSerial.h>
+  SoftwareSerial mp3Serial(MP3_RX_PIN, MP3_TX_PIN);
+#else
+  #define mp3Serial Serial1
+#endif
+
+
+#include <DFMiniMp3E.h>
 
 // define a handy type using hardware serial with no notifications
 //
-typedef DFMiniMp3<HardwareSerial> DfMp3; 
+typedef DFMiniMp3<> DfMp3; 
 
 // instance a DfMp3 object, 
 //
-DfMp3 dfmp3(Serial1);
-
-// Some arduino boards only have one hardware serial port, so a software serial port is needed instead.
-// comment out the above definitions and use these
-//SoftwareSerial secondarySerial(10, 11); // RX, TX
-//typedef DFMiniMp3<SoftwareSerial> DfMp3;
-// DfMp3 dfmp3(secondarySerial);
+DfMp3 dfmp3;
 
 void setup() 
 {
   Serial.begin(115200);
 
   Serial.println("initializing...");
-  
-  dfmp3.begin();
-  // for boards that support hardware arbitrary pins
-  // dfmp3.begin(10, 11); // RX, TX
+
+// serial port initialization
+#if (defined ESP32)
+  mp3Serial.begin(9600, SERIAL_8N1, MP3_RX_PIN, MP3_TX_PIN);
+#else
+  mp3Serial.begin(9600);
+#endif
+
+  if (!dfmp3.begin(mp3Serial, /*doReset = */true, /*timeout = */2000)) {  //Use serial to communicate with mp3.
+    Serial.println(F("Unable to begin:"));
+    Serial.println(F("1.Please recheck the connection!"));
+    Serial.println(F("2.Please insert the SD card!"));
+    while(true);
+  }
 
   // during development, it's a good practice to put the module
   // into a known state by calling reset().  
   // You may hear popping when starting and you can remove this 
   // call to reset() once your project is finalized
-  dfmp3.reset(); 
+  // dfmp3.reset(); 
   
   uint16_t version = dfmp3.getSoftwareVersion();
   Serial.print("version ");

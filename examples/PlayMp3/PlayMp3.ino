@@ -8,7 +8,7 @@
 // sd:/mp3/0002.mp3
 // sd:/mp3/0003.mp3
 
-#include <DFMiniMp3.h>
+#include <DFMiniMp3E.h>
 
 // forward declare the sketches managing class, just the name
 //
@@ -16,13 +16,19 @@ class Mp3Manager;
 
 // define a handy type using hardware serial and our notify class wrapper
 //
-typedef DFMiniMp3<HardwareSerial, DfMp3Callback<Mp3Manager>> DfMp3;
+typedef DFMiniMp3<DfMp3Callback<Mp3Manager>> DfMp3;
 
-// Some arduino boards only have one hardware serial port, 
-// so a software serial port is needed instead.
-// use this instead to define the DFMiniMp3
-//SoftwareSerial secondarySerial(10, 11); // RX, TX
-//typedef DFMiniMp3<SoftwareSerial, DfMp3Callback<Mp3Manager>> DfMp3;
+// serial definition 
+#define MP3_RX_PIN 13
+#define MP3_TX_PIN 15
+
+#if (defined(ARDUINO_AVR_UNO) || defined(ESP8266))   // Using a soft serial port
+  #include <SoftwareSerial.h>
+  SoftwareSerial mp3Serial(MP3_RX_PIN, MP3_TX_PIN);
+#else
+  #define mp3Serial Serial1
+#endif
+
 
 // implement the sketches managing class,
 // this is the authors class doing what funtionality the author wants
@@ -33,8 +39,7 @@ class Mp3Manager
 {
 public:
     Mp3Manager() :
-        _dfmp3(Serial1, this) // NOTE: passing this object as the notification target
-//      _dfmp3(secondarySerial, this); // for software serial
+        _dfmp3(this) // NOTE: passing this object as the notification target
     {
     }
 
@@ -45,11 +50,9 @@ public:
     // not required but common practice 
     // as _dfmp3.begin() must get called
     //
-    void begin()
+    void begin(Stream &mp3Serial)
     {
-        _dfmp3.begin();
-        // for boards that support hardware arbitrary pins
-        // _dfmp3.begin(10, 11); // RX, TX
+        _dfmp3.begin(mp3Serial);
 
         // during development, it's a good practice to put the module
         // into a known state by calling reset().  
@@ -157,7 +160,14 @@ void setup()
     Serial.begin(115200);
     Serial.println("initializing...");
 
-    mp3.begin();
+    // serial port initialization
+#if (defined ESP32)
+    mp3Serial.begin(9600, SERIAL_8N1, MP3_RX_PIN, MP3_TX_PIN);
+#else
+    mp3Serial.begin(9600);
+#endif
+
+    mp3.begin(mp3Serial);
 }
 
 void waitMilliseconds(uint16_t msWait)

@@ -2,12 +2,13 @@
 Mp3ChipBase - base class to T_CHIP_VARIANT template features
 
 Written by Michael C. Miller.
+small changes by Serhii Lebedenko
 
 I invest time and resources providing this open source code,
 please support me by dontating (see https://github.com/Makuna/DFMiniMp3)
 
 -------------------------------------------------------------------------
-This file is part of the Makuna/DFMiniMp3 library.
+This file is part of the SerhiiLe/DFMiniMp3E library.
 
 DFMiniMp3 is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as

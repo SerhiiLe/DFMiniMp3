@@ -1,19 +1,22 @@
 
 
-#define MP3_RX_PIN 15
-#define MP3_TX_PIN 2
+#define MP3_RX_PIN 13
+#define MP3_TX_PIN 15
 
-//#include <SoftwareSerial.h>
-//SoftwareSerial Mp3Serial(MP3_RX_PIN, MP3_TX_PIN); // RX, TX
-//#define Mp3SerialType SoftwareSerial
-
-#define Mp3SerialType HardwareSerial
-#define Mp3Serial Serial1
+#if (defined(ESP8266))   // Using a soft serial port
+  #include <SoftwareSerial.h>
+  EspSoftwareSerial::UART mp3Serial;
+#elif (defined(ARDUINO_AVR_UNO))
+  #include <SoftwareSerial.h>
+  SoftwareSerial mp3Serial(MP3_RX_PIN, MP3_TX_PIN);
+#else
+  #define mp3Serial Serial1
+#endif
 
 #define DebugOut Serial
 #define DfMiniMp3Debug DebugOut
 
-#include <DFMiniMp3.h>
+#include <DFMiniMp3E.h>
 
 // forward declare the notify class, just the name
 //
@@ -21,11 +24,18 @@ class Mp3Notify;
 
 // define a handy type using serial and our notify class
 //
-typedef DFMiniMp3<Mp3SerialType, Mp3Notify> DfMp3;
+typedef DFMiniMp3<Mp3Notify> DfMp3;
 
 class Mp3Notify
 {
 public:
+
+   // required type
+    typedef void TargetType;
+
+    // required method even though it doesn't do anything
+    static void SetTarget(TargetType*) { }
+
   static void PrintlnSourceAction(DfMp3_PlaySources source, const char* action)
   {
     if (source & DfMp3_PlaySources_Sd) 
@@ -69,24 +79,37 @@ public:
 };
 
 
-DfMp3 mp3(Mp3Serial);
+DfMp3 mp3;
 
 uint32_t setupStart;
 
-void setup() 
+void setup()
 {
   DebugOut.begin(115200);
-  
-  //mp3.begin(); // when you can't set the pins OR software serial is used
-  mp3.begin(MP3_RX_PIN, MP3_TX_PIN); // rx, tx
-  
+
+// serial port initialization
+#if defined(ESP32)
+  mp3Serial.begin(9600, SERIAL_8N1, MP3_RX_PIN, MP3_TX_PIN);
+#elif defined(ESP8266)
+  mp3Serial.begin(9600, SERIAL_8N1, MP3_RX_PIN, MP3_TX_PIN, false);
+#else
+  mp3Serial.begin(9600);
+#endif
+
+  if (!mp3.begin(mp3Serial, /*doReset = */true, /*timeout = */2000)) {  //Use serial to communicate with mp3.
+    Serial.println(F("Unable to begin:"));
+    Serial.println(F("1.Please recheck the connection!"));
+    Serial.println(F("2.Please insert the SD card!"));
+    while(true);
+  }
+
   // use hardware serial Serial for MP3 playback on ESP8266
   // move serial to GPIO15(TX) and GPIO13 (RX) for
   // the mp3 module, we loose the debug monitor though
   //Serial.swap();
 
  // mp3.awake();
-  mp3.reset(); 
+ // mp3.reset(); 
 
 
   DebugOut.println("initializing...");
