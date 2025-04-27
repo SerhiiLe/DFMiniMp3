@@ -44,7 +44,7 @@ This will initialize the DFMiniMp3 and prepare it for use.  Call this within the
 
 _serial_ - the instance of the serial  
 _doReset_ - reset the module during initialization (recommend)  
-_timeout_ - timeout of waiting for response from module in msec  
+_timeout_ - timeout of waiting for response from module in ms  
 
 Return _true_ if module is online.
 
@@ -253,7 +253,7 @@ Cause the Mp3 module to go into a very low power mode.  This is useful for batte
 Reset the hardware module.  Calling this method will make the module not available for about one second and may cause noise in the audio output.  
 During software development it is a good practice to call this right after begin() to put the MP3 Module into a known state.  In a final product, there is an assumption that the uC and the MP3 Module will be powered on together and thus will start in a known state; so it can be removed then.  
 _waitForOnline_ - wait for module online  
-_timeout_ - timeout of waiting for response from module in msec  
+_timeout_ - timeout of waiting for response from module in ms  
 
 ### void start()  
 
