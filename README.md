@@ -21,19 +21,19 @@ _C_ACK_TIMEOUT_ - (optional) the value in milliseconds to use for serial timeout
 The following example uses the user provided callback class named `Mp3Callbacks`.  
 
 ```cpp
-DFMiniMp3<HardwareSerial, Mp3Callbacks> mp3;
+typedef DFMiniMp3<HardwareSerial, Mp3Callbacks> mp3;
 ```
 
 The following example uses the user provided callback class named `Mp3Callbacks` specialized for the MH2024K16SS chip.  
 
 ```cpp
-DFMiniMp3<Mp3Callbacks, Mp3ChipMH2024K16SS> mp3;
+typedef DFMiniMp3<Mp3Callbacks, Mp3ChipMH2024K16SS> mp3;
 ```
 
 The following example sets the ACK timeout to 1600 ms if your chip requires a longer serial timeout.  
 
 ```cpp
-DFMiniMp3<Mp3Callbacks, Mp3ChipMH2024K16SS, 1600> mp3;
+typedef DFMiniMp3<Mp3Callbacks, Mp3ChipMH2024K16SS, 1600> mp3;
 ```
 
 ## Methods  
@@ -48,54 +48,52 @@ _timeout_ - timeout of waiting for response from module in msec
 
 Return _true_ if module is online.
 
-Initialization the hardware serial instance:
+Initialization the serial, in global section:  
+the hardware serial instance
 
 ```cpp
 #include <HardwareSerial.h>
 HardwareSerial mp3Serial(1);
 ```
 
-Initialization the software serial instance:
+the software serial instance
 
 ```cpp
 #include <SoftwareSerial.h>
 SoftwareSerial mp3Serial(rxPin, txPin);
 ```
 
-or
+or, f you use the EspSoftwareSerial (recommend for ESP8266)
 
 ```cpp
 #include <SoftwareSerial.h>
 EspSoftwareSerial::UART mp3Serial;
 ```
 
-if you use the EspSoftwareSerial (recommend for ESP8266)
-
-in global section, and
+In `Setup()` function of the sketches:  
+for the hardware serial instance
 
 ```cpp
 mp3Serial.begin(9600, SERIAL_8N1, rxPin, txPin);
 ```
 
-for hardware serial, or
+for the software serial instance
 
 ```cpp
 mySerial.begin(9600);
 ```
 
-for the SoftwareSerial, or
+or for EspSoftwareSerial
 
 ```cpp
 mp3Serial.begin(9600, SERIAL_8N1, rxPin, txPin, false);
 ```
 
-for EspSoftwareSerial
-
-in `Setup()` function of the sketches.
-
 _9600_ - the baud rate the module communicates at by defaults.  It is rare you will need to provide this.  
 _rxPin_ - the receive pin for the serial.  
 _txPin_ - the transmit pin for the serial.  
+
+See examples.
 
 ### void setComRetries(uint8_t retries)  
 
